@@ -1,0 +1,51 @@
+##Client code:
+import socket
+import threading
+
+def server():
+    server_socket = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_DGRAM
+    )
+
+    server_socket.bind(("127.0.0.1", 4900))
+
+    print("Server is waiting for client...")
+
+    data, addr = server_socket.recvfrom(1024)
+
+    print("Client connected:", addr)
+    print("Client says:", data.decode())
+
+    text = data.decode()
+    lowercase_text = text.lower()
+
+    server_socket.sendto(
+        lowercase_text.encode(),
+        addr
+    )
+
+    print("Lowercase string:", lowercase_text)
+
+    server_socket.close()
+
+thread = threading.Thread(target=server)
+thread.start()
+##server code:
+import socket
+
+client = socket.socket(
+    socket.AF_INET,
+    socket.SOCK_DGRAM
+)
+
+client.sendto(
+    "HELLO THIS IS ASSIGNMENT 5 UDP".encode(),
+    ("127.0.0.1", 4900)
+)
+
+data, addr = client.recvfrom(1024)
+
+print("Server:", data.decode())
+
+client.close()
