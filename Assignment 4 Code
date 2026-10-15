@@ -1,0 +1,109 @@
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+const int INF = 999;
+const int MAX = 20;
+
+int main()
+{
+    int n, i, j, k;
+    int c[MAX][MAX], d[MAX][MAX], nt[MAX][MAX];
+
+    cout << "Enter the number of routers: ";
+    cin >> n;
+
+    cout << "\nEnter the cost matrix row by row:\n";
+    cout << "(Enter 999 for infinity/no direct connection)\n";
+    cout << "(Note: Distance from a router to itself should be entered as 0)\n\n";
+
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            cin >> c[i][j];
+            
+            // Automatically fix self-loop costs to 0 if user entered something else
+            if (i == j) {
+                c[i][j] = 0;
+            }
+
+            d[i][j] = c[i][j];
+
+            if (c[i][j] != INF && i != j)
+                nt[i][j] = j;
+            else
+                nt[i][j] = -1;
+        }
+    }
+
+    // Distance Vector Algorithm (Bellman-Ford / Floyd-Warshall style)
+    for (k = 0; k < n; k++)
+    {
+        for (i = 0; i < n; i++)
+        {
+            for (j = 0; j < n; j++)
+            {
+                if (d[i][k] != INF && d[k][j] != INF)
+                {
+                    if (d[i][j] > d[i][k] + d[k][j])
+                    {
+                        d[i][j] = d[i][k] + d[k][j];
+                        nt[i][j] = nt[i][k];
+                    }
+                }
+            }
+        }
+    }
+
+    // --- PROPERLY FORMATTED OUTPUT ---
+    
+    cout << "\n========================================\n";
+    cout << "         FINAL DISTANCE MATRIX          \n";
+    cout << "========================================\n";
+    
+    // Print column headers
+    cout << setw(6) << "To:";
+    for (j = 0; j < n; j++)
+        cout << setw(6) << (j + 1);
+    cout << "\n----------------------------------------\n";
+
+    // Print matrix with row headers
+    for (i = 0; i < n; i++)
+    {
+        cout << "R" << setw(3) << (i + 1) << " |";
+        for (j = 0; j < n; j++)
+        {
+            cout << setw(6) << d[i][j];
+        }
+        cout << "\n";
+    }
+
+    cout << "\n========================================\n";
+    cout << "             ROUTING TABLES             \n";
+    cout << "========================================\n";
+
+    for (i = 0; i < n; i++)
+    {
+        cout << "\nRouter " << (i + 1) << " Table:\n";
+        cout << "--------------------------------\n";
+        cout << setw(12) << "Destination" << setw(10) << "Cost" << setw(12) << "Next Hop" << "\n";
+        cout << "--------------------------------\n";
+
+        for (j = 0; j < n; j++)
+        {
+            if (i == j)
+                continue;
+
+            cout << setw(9) << (j + 1);
+            if (d[i][j] == INF)
+                cout << setw(10) << "INF" << setw(12) << "-\n";
+            else
+                cout << setw(10) << d[i][j] << setw(12) << (nt[i][j] + 1) << "\n";
+        }
+    }
+    cout << "========================================\n";
+
+    return 0;
+}
